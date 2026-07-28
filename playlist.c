@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <string.h>
+typedef struct {
+char title[50];
+char artist[50];
+char genre[20];
+int duration_sec;
+long play_count;
+float rating;
+} Song;
+void formatPlays(long plays, char *buf) {
+if (plays >= 1000000)
+sprintf(buf, "%.1fM", plays / 1000000.0);
+else if (plays >= 1000)
+sprintf(buf, "%.1fK", plays / 1000.0);
+else
+sprintf(buf, "%ld", plays);
+}
+void printSong(const Song *s) {
+char playsBuf[10];
+formatPlays(s->play_count, playsBuf);
+printf("%-15s %-15s %-10s %d:%02d %s plays Rating: %.1f\n",
+s->title, s->artist, s->genre,
+s->duration_sec / 60, s->duration_sec % 60,
+playsBuf, s->rating);
+}
+int main() {
+Song playlist[8] = {
+{"Pasoori", "Ali Sethi & Shae Gill", "Pop/Folk", 252, 3100000, 5.0},
+{"Blinding Lights", "The Weeknd", "Synthpop", 200, 4800000, 5.0},
+{"Bohemia", "Natasha Baig", "Punjabi", 198, 1200000, 4.8},
+{"Levitating", "Dua Lipa", "Dance Pop", 203, 3700000, 4.8},
+{"Jhoom", "Ali Zafar", "Fusion", 310, 2500000, 4.6},
+{"As It Was", "Harry Styles", "Indie Pop", 167, 5100000, 4.4},
+{"Tu Jhoom", "Naseebo Lal & Abida", "Sufi", 387, 1800000, 4.4},
+{"Anti-Hero", "Taylor Swift", "Pop", 200, 4200000, 4.4}
+};
+int choice;
+printf("=== PLAYLIST MANAGER ===\n");
+printf("1=By Artist 2=By Genre 3=Most Played 4=Total Time 5=Top Rated\n");
+printf("Choice >> ");
+scanf("%d", &choice);
+getchar(); 
+if (choice == 1) {
+char artist[50];
+printf("Enter artist >> ");
+fgets(artist, 50, stdin);
+artist[strcspn(artist, "\n")] = 0; 
+int found = 0;
+for (int i = 0; i < 8; i++) {
+if (strcmp(playlist[i].artist, artist) == 0) {
+printSong(&playlist[i]);
+found = 1;
+}
+}
+if (!found) printf("No songs found.\n");
+}
+else if (choice == 2) {
+char genre[20];
+printf("Enter genre >> ");
+fgets(genre, 20, stdin);
+genre[strcspn(genre, "\n")] = 0;
+for (int i = 0; i < 8; i++) {
+if (strcmp(playlist[i].genre, genre) == 0) {
+printSong(&playlist[i]);
+}
+}
+}
+else if (choice == 3) {
+int maxIdx = 0;
+for (int i = 1; i < 8; i++) {
+if (playlist[i].play_count > playlist[maxIdx].play_count)
+maxIdx = i;
+}
+printf("Most played: ");
+printSong(&playlist[maxIdx]);
+}
+else if (choice == 4) {
+int totalSec = 0;
+for (int i = 0; i < 8; i++)
+totalSec += playlist[i].duration_sec;
+printf("Total playlist time: %d:%02d (8 songs)\n",
+totalSec / 60, totalSec % 60);
+
+}
+else if (choice == 5) {
+float threshold;
+printf("Enter minimum rating >> ");
+scanf("%f", &threshold);
+for (int i = 0; i < 8; i++) {
+if (playlist[i].rating >= threshold)
+printSong(&playlist[i]);
+}
+}
+else {
+printf("Invalid choice!\n");
+}
+return 0;
+} 
